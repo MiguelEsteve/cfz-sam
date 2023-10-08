@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 import torch
 
+
 class FastSAMDisplay:
 
-    def __init__(self, image: np.ndarray=None, results:torch.Tensor=None):
+    def __init__(self, image: np.ndarray = None, results: torch.Tensor = None):
 
         self.img = image
         self.results = results
@@ -34,7 +35,8 @@ class FastSAMDisplay:
                 if isinstance(mask, torch.Tensor):
                     mask = mask.cpu().numpy()
                 mask = cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
-                morphed_annotations.append(cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((8, 8), np.uint8)))
+                morphed_annotations.append(
+                    cv2.morphologyEx(mask.astype(np.uint8), cv2.MORPH_OPEN, np.ones((8, 8), np.uint8)))
             morphed_annotations = np.array(morphed_annotations)
 
             # Convert the list back to a tensor if you need to
@@ -87,8 +89,8 @@ class FastSAMDisplay:
     def fast_show_mask(
             annotation,
             random_color=True,
-            bboxes = None,
-            points = None,
+            bboxes=None,
+            points=None,
             pointlabel=None,
             retinamask=True,
             target_height=960,
@@ -136,10 +138,7 @@ class FastSAMDisplay:
                 elif pointlabel[i] == 0:
                     cv2.circle(show, (int(point[0]), int(point[1])), 10, (255, 0, 255), -1)  # magenta for label 0
 
-
         if not retinamask:
             show = cv2.resize(show, (target_width, target_height), interpolation=cv2.INTER_NEAREST)
 
         return show
-
-

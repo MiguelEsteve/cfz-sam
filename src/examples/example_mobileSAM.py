@@ -8,8 +8,8 @@ import math
 import torch
 import cv2
 from configs import log_conf
-from mobile_sam import sam_model_registry, SamPredictor
-from mobile_sam import SamAutomaticMaskGenerator
+from mobile_sam import sam_model_registry, SamPredictor, SamAutomaticMaskGenerator
+from src.utils.fastSAMutils import FastSAMDisplay
 
 LOGGER = log_conf.getLogger(__name__)
 
@@ -18,7 +18,7 @@ class ExampleMobileSAM:
     def __init__(self):
         self.model_type = 'vit_t'
         self.sam_checkpoint = 'c:/repos/cfz-sam/MobileSAM/weights/mobile_sam.pt'
-        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
         self.model = None
         self.imgarr: np.ndarray = None
 
@@ -46,10 +46,19 @@ class ExampleMobileSAM:
         mobile_sam.eval()
         return mobile_sam
 
-    def get_all_masks(self, imgarr, model=None):
+    def get_all_masks(self, imgarr, model=None, with_predictor: bool = True):
+
         model = self.get_model() if model is None else model
-        mask_generator = SamAutomaticMaskGenerator(model)
-        masks = mask_generator.generate(imgarr)
+        if with_predictor:
+            predictor = SamPredictor(model)
+            predictor.set_image(imgarr)
+            masks, _, _ = predictor.predict()
+        """
+        # This code does not work in SURFACE with 'cpu' # TODO check in WS with cpu 
+        else:
+            mask_generator = SamAutomaticMaskGenerator(model)
+            masks = mask_generator.generate(imgarr)
+        """
         return masks
 
     @staticmethod
@@ -60,7 +69,7 @@ class ExampleMobileSAM:
         return masks
 
     @staticmethod
-    def apply_mask(imgarr, masks):
+    def apply_single_mask(imgarr, masks, with_prediction: bool = True):
         imgarr = cv2.cvtColor(imgarr, cv2.COLOR_BGR2RGB)
         redImg = np.zeros(imgarr.shape, imgarr.dtype)
         redImg[:, :, :] = (255, 0, 0)
@@ -69,12 +78,23 @@ class ExampleMobileSAM:
         idx = np.random.choice(range(len(masks)), size=1)[0]
 
         # get one random mask, and convert from bool to unsigned int8
-        mask = masks[idx]["segmentation"].astype(np.uint8)
+        if not with_prediction:
+            mask = masks[idx]["segmentation"].astype(np.uint8)
+        else:
+            mask = masks[idx].astype(np.uint8)
         image_with_mask[mask == 1] = [255, 0, 0]
         return image_with_mask
 
     @staticmethod
-    def apply_mask_and_plot(imgarr, masks):
+    def apply_all_masks(imgarr:np.ndarray, masks:np.ndarray):
+        f = FastSAMDisplay()
+        results = torch.from_numpy(masks)
+        f.set_img_results(img=imgarr, results=results)
+        frame = f.plot_to_result(annotations=results)
+
+
+    @staticmethod
+    def apply_single_mask_and_plot(imgarr, masks, with_prediction: bool = True):
         imgarr = cv2.cvtColor(imgarr, cv2.COLOR_BGR2RGB)
         redImg = np.zeros(imgarr.shape, imgarr.dtype)
         redImg[:, :, :] = (255, 0, 0)
@@ -83,7 +103,10 @@ class ExampleMobileSAM:
         idx = np.random.choice(range(len(masks)), size=1)[0]
 
         # get one random mask, and convert from bool to unsigned int8
-        mask = masks[idx]["segmentation"].astype(np.uint8)
+        if not with_prediction:
+            mask = masks[idx]["segmentation"].astype(np.uint8)
+        else:
+            mask = masks[idx].astype(np.uint8)
         image_with_mask[mask == 1] = [255, 0, 0]
 
         fig, axes = plt.subplots(1, 3)
@@ -104,7 +127,7 @@ class ExampleMobileSAM:
         elapsed_inference = datetime.timedelta(milliseconds=elapsed_inference_ms)
         LOGGER.debug(f"_run_on_frame - elapsed inference: {str(elapsed_inference)}")
 
-        frame = self.apply_mask(frame, masks)
+        frame = self.apply_single_mask(frame, masks)
 
         t2 = time.time()
         elapsed_plot_ms = math.ceil((time.time() - t2) * 1000)
