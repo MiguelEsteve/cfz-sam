@@ -82,6 +82,10 @@ LOGGING = {
         'src.examples.example_FastSAM': {
             'handlers': ['console'],
             'level': 'DEBUG'
+        },
+        'src.examples.example_mobileSAM': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
         }
     }
 }
