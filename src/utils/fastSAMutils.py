@@ -23,7 +23,7 @@ class FastSAMDisplay:
                        point_label=None,
                        mask_random_color=True,
                        better_quality=True,
-                       retina=False,
+                       retina=True,
                        withContours=True) -> np.ndarray:
 
         image = self.img.copy()
@@ -55,10 +55,10 @@ class FastSAMDisplay:
             target_height=original_h,
             target_width=original_w,
         )
-        alpha = 0.3
+        alpha = 0.6
 
         mask_rgb = (mask_image[:, :, :3] * 255).astype(np.uint8)
-        image = cv2.addWeighted(image, 1 - alpha, mask_rgb, alpha, 0)
+        image = cv2.addWeighted(image, 1 - alpha, mask_rgb, alpha, 0.5)
 
         if withContours:
             for i, mask in enumerate(annotations):

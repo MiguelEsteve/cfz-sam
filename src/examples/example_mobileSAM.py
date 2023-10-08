@@ -86,12 +86,12 @@ class ExampleMobileSAM:
         return image_with_mask
 
     @staticmethod
-    def apply_all_masks(imgarr:np.ndarray, masks:np.ndarray):
+    def apply_all_masks(imgarr: np.ndarray, masks: np.ndarray):
         f = FastSAMDisplay()
         results = torch.from_numpy(masks)
         f.set_img_results(img=imgarr, results=results)
         frame = f.plot_to_result(annotations=results)
-
+        return frame
 
     @staticmethod
     def apply_single_mask_and_plot(imgarr, masks, with_prediction: bool = True):
@@ -113,6 +113,13 @@ class ExampleMobileSAM:
         axes[0].imshow(imgarr)
         axes[1].imshow(mask, cmap='gray')
         axes[2].imshow(image_with_mask)
+        plt.show()
+
+    def apply_all_masks_and_plot(self, imgarr: np.ndarray, masks: np.ndarray):
+        masked_frame = self.apply_all_masks(imgarr, masks)
+        fig, axes = plt.subplots(1, 2)
+        axes[0].imshow(imgarr)
+        axes[1].imshow(masked_frame)
         plt.show()
 
     def run_on_frame(self, frame: np.ndarray):
