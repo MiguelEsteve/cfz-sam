@@ -1,5 +1,4 @@
 import os
-
 import onnx
 import torch
 from configs import configs
@@ -29,7 +28,6 @@ class ConversionFastSAM:
         model = self._get_model()
         model.export(format='onnx')
 
-
     def load_from_ONNX(self):
         # load the ONNX model
         model = onnx.load('c:/repos/cfz-sam/FastSAM/weights/FastSAM.onnx')
@@ -38,15 +36,26 @@ class ConversionFastSAM:
         # print a human readable representation of the graph
         print(onnx.helper.printable_graph(model.graph))
 
+    def load_from_PYTORCH(self):
+        model = torch.load('c:/repos/cfz-sam/FastSAM/weights/FastSAM.pt')
+        print(type(model))
+        print(model)
+        # print(model)
+
     def inference_with_ONNX(self, input_data):
         import onnxruntime as ort
 
         ort_session = ort.InferenceSession('c:/repos/cfz-sam/FastSAM/weights/FastSAM.onnx',
                                            providers=['CPUExecutionProvider'])
+        print(ort_session)
         input_name  = ort_session.get_inputs()[0].name
         output_name  = ort_session.get_outputs()[0].name
+        print(input_name)
+        print(output_name)
 
+        """"""
         results = ort_session.run(
             None, {input_name: input_data}
         )
+
         return results

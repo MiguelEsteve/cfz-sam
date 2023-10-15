@@ -10,6 +10,7 @@ src/*.pt
 src/*.jpg
 src/*.mp4
 tests/
+ultralytics/
 
 
 <<<<<<< HEAD

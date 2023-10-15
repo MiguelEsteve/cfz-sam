@@ -23,7 +23,7 @@ class FastSAMDisplay:
                        point_label=None,
                        mask_random_color=True,
                        better_quality=True,
-                       retina=True,
+                       retina=False,
                        withContours=True) -> np.ndarray:
 
         image = self.img.copy()
@@ -40,7 +40,7 @@ class FastSAMDisplay:
             morphed_annotations = np.array(morphed_annotations)
 
             # Convert the list back to a tensor if you need to
-            if isinstance(annotations, torch.Tensor):
+            if isinstance(annotations, np.ndarray):
                 annotations = torch.tensor(morphed_annotations)
             else:
                 annotations = morphed_annotations
@@ -61,6 +61,7 @@ class FastSAMDisplay:
         image = cv2.addWeighted(image, 1 - alpha, mask_rgb, alpha, 0.5)
 
         if withContours:
+
             for i, mask in enumerate(annotations):
                 if isinstance(mask, torch.Tensor):
                     mask = mask.cpu().numpy()
@@ -96,7 +97,8 @@ class FastSAMDisplay:
             target_height=960,
             target_width=960,
     ):
-        annotation = annotation.cpu().numpy()
+        if isinstance(annotation, torch.Tensor):
+            annotation = annotation.cpu().numpy()
 
         height = annotation.shape[1]
         weight = annotation.shape[2]

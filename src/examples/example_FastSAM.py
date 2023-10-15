@@ -3,7 +3,7 @@ import os.path
 import time
 import datetime
 import numpy as np
-from fastsam import FastSAM, FastSAMPrompt
+from ultralytics.models.fastsam import FastSAM, FastSAMPrompt
 import cv2
 import torch
 from configs import configs
@@ -38,6 +38,9 @@ class ExampleFastSAM:
         model = FastSAM(checkpoint)
         model.to(self.device)
         return model
+
+    def _model_call(self, imgarr:np.ndarray):
+        return self.model(imgarr)
 
     def _set_prompt_process(self, imgarr):
         everything_results = self.model(imgarr, device=self.device, retina_masks=True, imgsz=1024, conf=0.4, iou=0.9)
@@ -83,7 +86,7 @@ class ExampleFastSAM:
 
         elapsed_inference_ms =  math.ceil((time.time()-t1)*1000)
         elapsed_inference = datetime.timedelta(milliseconds=elapsed_inference_ms)
-        LOGGER.debug(f"_run_on_frame - elapsed inference: {str(elapsed_inference)}")
+        LOGGER.debug(f"_run_on_frame - device: {self.model.device},  elapsed inference: {str(elapsed_inference)}")
 
         t2 = time.time()
         frame = self.display.plot_to_result(annotations=annots) if len(annots) else frame
@@ -98,7 +101,7 @@ class ExampleFastSAM:
         return frame
 
     def run_on_video(self, video_fn: str, add_frame_number=False, read_frames_skipped: int = None, num_frames:int = None,
-                     display:bool = False, save_file: str = None):
+                     display:bool = False, save_file: str = None, ask_to_continue:bool = False):
 
         LOGGER.debug(f'Test video: "{video_fn}"')
         _, data = VideoUtils.get_video_data(video_fn)
@@ -119,9 +122,10 @@ class ExampleFastSAM:
         skip_factor = FR - read_frames_skipped + 1 if read_frames_skipped is not None else 1
         LOGGER.debug(
             f"Frame rate: {FR}, read frame rate set to {read_frames_skipped}, calculated skip factor: {skip_factor}")
-        s = input('\nPress C to cancel (C)\n')
-        if s == 'C':
-            return
+        if ask_to_continue:
+            s = input('\nPress C to cancel (C)\n')
+            if s == 'C':
+                return
 
 
         skip_count = 0

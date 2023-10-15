@@ -556,3 +556,4 @@ class DisplayUtils:
                                                 read_frames_skipped=read_frames_skipped)
         DisplayUtils.show_frames_from_array(video)
 
+

@@ -86,6 +86,10 @@ LOGGING = {
         'src.examples.example_mobileSAM': {
             'handlers': ['console'],
             'level': 'DEBUG'
+        },
+        'src.onnxfastsam.onnxFastSAM': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
         }
     }
 }
