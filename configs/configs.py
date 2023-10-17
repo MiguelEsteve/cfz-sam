@@ -1,12 +1,28 @@
 import os
+import platform
 
 # Root folder for project code vs computer host
 roots = {'DESKTOP-JV9DACD':
-            {'cfz-sam': 'C:/repos/cfz-sam'},
+            {'cfz-sam': 
+             {
+                 'Windows':'C:/repos/cfz-sam', 
+                 'Linux': '/home/hailo/cfz-sam'}
+                 },
          "PC-514445":
-            {'cfz-sam': 'C:/repos/cfz-sam'},
+            {'cfz-sam': 
+             {
+                 'Windows':'C:/repos/cfz-sam', 
+                 'Linux': '/home/hailo/cfz-sam'}
+                 },
          'SURFACE':
-             {'cfz-sam': 'C:/repos/cfz-sam'}}
-PROJECT_PATH = roots[os.getenv('computername')]['cfz-sam']
-images_path = os.path.join(PROJECT_PATH, 'images')
+             {'cfz-sam': 
+              {
+                  'Windows': 'C:/repos/cfz-sam',
+                  'Linux': '/home/hailo/cfz-sam'}
+                  }
+         }
+
+PROJECT_PATH = roots[os.getenv('computername')]['cfz-sam'][platform.system()]
+IMAGES_PATH = os.path.join(PROJECT_PATH, 'images')
+FASTSAM_CHECKPOINTS = os.path.join(PROJECT_PATH, 'FastSAM/weights')
 
