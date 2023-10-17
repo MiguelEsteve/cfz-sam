@@ -11,6 +11,8 @@ src/*.jpg
 src/*.mp4
 tests/
 ultralytics/
+.vscode/
+*workspace
 
 
 <<<<<<< HEAD
