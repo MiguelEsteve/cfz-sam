@@ -4,6 +4,10 @@ import math
 import cv2
 import numpy as np
 import torch
+import os
+import sys
+sys.path.append('/home/hailo/cfz-sam')
+
 from ultralytics.utils import ops
 from ultralytics.engine.results import Results
 from ultralytics.models.fastsam.utils import bbox_iou
@@ -12,6 +16,7 @@ from src.utils.fastSAMutils import FastSAMDisplay
 from src.utils.videoutils import VideoUtils, DisplayUtils
 import onnxruntime
 
+from configs.configs import FASTSAM_CHECKPOINTS
 from configs import log_conf
 
 LOGGER = log_conf.getLogger(__name__)
@@ -25,8 +30,8 @@ class ONNXFastSAM:
         self.input_names = None
         self.output_names = None
 
-        self.w_pt = 'C:/repos/cfz-sam/FastSAM/weights/FastSAM.pt'
-        self.w_onnx = 'C:/repos/cfz-sam/FastSAM/weights/FastSAM.onnx'
+        self.w_pt = os.path.join(FASTSAM_CHECKPOINTS, 'FastSAM.pt')
+        self.w_onnx = os.path.join(FASTSAM_CHECKPOINTS, 'FastSAM.onnx')
 
         self.onnx_session: onnxruntime.InferenceSession = None
         self.display = FastSAMDisplay()

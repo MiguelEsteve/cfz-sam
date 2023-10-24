@@ -1,5 +1,5 @@
-import os
 import platform
+import os
 
 # Root folder for project code vs computer host
 roots = {'DESKTOP-JV9DACD':
@@ -22,7 +22,8 @@ roots = {'DESKTOP-JV9DACD':
                   }
          }
 
-PROJECT_PATH = roots[os.getenv('computername')]['cfz-sam'][platform.system()]
+PROJECT_PATH = roots[platform.node()]['cfz-sam'][platform.system()]
 IMAGES_PATH = os.path.join(PROJECT_PATH, 'images')
 FASTSAM_CHECKPOINTS = os.path.join(PROJECT_PATH, 'FastSAM/weights')
 
+print(PROJECT_PATH)
